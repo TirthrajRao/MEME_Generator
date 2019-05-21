@@ -1,0 +1,4 @@
+#Tue May 21 12:35:12 IST 2019
+base.0=/home/rao/Desktop/MEME_Generator/MEME_Generator/android/app/build/intermediates/transforms/dexMerger/debug/0
+renamed.0=classes.dex
+path.0=classes.dex
