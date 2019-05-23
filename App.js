@@ -3,7 +3,7 @@ import React, {Component} from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
 import Routes from './Screens/Routes';
 import AddImage from './Screens/AddImage';
-import EditImage from './Screens/EditImage';
+import SaveImage from './Screens/SaveImage';
 
   export default class App extends React.Component {
   render() {
