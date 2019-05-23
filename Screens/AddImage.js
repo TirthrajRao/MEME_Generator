@@ -9,6 +9,9 @@ import { TouchableOpacity, Image, View, Text, Platform, Dimensions, StyleSheet, 
   const base64Bg = require('./bas64bg').default 
   import RNFetchBlob from "rn-fetch-blob";
   import RNFS from 'react-native-fs';
+  import Menu, { MenuItem, MenuDivider } from 'react-native-material-menu';
+// import AsyncStorage from '@react-native-community/async-storage';
+import {AsyncStorage} from 'react-native';
 
   const { width } = Dimensions.get('window')
 
@@ -18,6 +21,7 @@ import { TouchableOpacity, Image, View, Text, Platform, Dimensions, StyleSheet, 
       super(props)
       this.state = {
         uri: '',
+        uritop:'',
         image: undefined,
         marker: icon,
         markImage: true,
@@ -25,6 +29,7 @@ import { TouchableOpacity, Image, View, Text, Platform, Dimensions, StyleSheet, 
         topText:'',
         bottomText:'',
         name:[],
+        data:[]
 
       }
     }
@@ -37,14 +42,10 @@ import { TouchableOpacity, Image, View, Text, Platform, Dimensions, StyleSheet, 
 
     actualDownload = () => {
 
-
-
       let url = this.state.uri
       let name = this.state.name
-      let img = url.split('//')[1]
-      console.log('+++++++++++',img);
-
       let dirs = RNFetchBlob.fs.dirs.PictureDir;
+      console.log("--path--",dirs)
       const file_path = dirs +'/'+name
 
       RNFS.readFile(this.state.uri, 'base64')
@@ -52,14 +53,30 @@ import { TouchableOpacity, Image, View, Text, Platform, Dimensions, StyleSheet, 
         this.setState({resBase64:res})
         let base64 = this.state.resBase64
         RNFS.writeFile(file_path,base64,'base64')
+        this.saveData(url)
         alert("Your file has been downloaded to Pictures folder!")
+        this.setState({uri:''})
         .catch((error) => {
           console.log("err",error);
           alert(JSON.stringify(error));
         });
       });
     }
-    
+
+  
+    saveData = async (url) => {
+      this.setState(prevState =>({
+                data: [...prevState.data,url]
+              })) 
+      console.log("---uri---",this.state.data)
+      try {
+        await AsyncStorage.setItem('url',JSON.stringify(this.state.data) );
+
+      } catch (e) {
+          console.log(e)
+  }
+}
+
     async downloadFile() {
       try {
         const granted = await PermissionsAndroid.request(
@@ -81,35 +98,53 @@ import { TouchableOpacity, Image, View, Text, Platform, Dimensions, StyleSheet, 
         console.warn(err);
       }
     }
+    _menu = null;
+    setMenuRef = ref => {
+      this._menu = ref;
+    };
 
+    hideMenu = () => {
+      this._menu.hide();
+    };
+
+    showMenu = () => {
+      this._menu.show();
+    };
     render () {
-
+   
+      const {navigation} = this.props;
       return (
         <ScrollView style={styles.container}>
         <View>
         <TextInput
+        ref={(input)=>{this.topText=input}}
         style={styles.input}
         returnKeyType="done"
         placeholder="top text"
-        onChangeText={(t) => this.setState({ topText: t })}/>
+        onChangeText={(text) => this.setState({ topText: text })}/>
 
         <TextInput
+        ref={(input)=>{this.bottomText=input}}
         style={styles.input}
         returnKeyType="done"
         placeholder="bottom text"
-        onChangeText={(t) => this.setState({ bottomText: t })}/>
+        onChangeText={(text) => this.setState({ bottomText: text })}/>
         </View>
 
-        <View style={styles.op}>
-        <TouchableOpacity
-        style={styles.btn}
-        onPress={() => this._pickImage('image')}>
-        <Text style={styles.text} >Pike Image</Text>
-        </TouchableOpacity>
+        <View style={styles.view}>
+
+
+        <Menu
+        ref={this.setMenuRef}
+        button={<Text  style={[styles.btn,styles.text]} onPress={this.showMenu}>Choose Image</Text>} >
+        <MenuItem onPress={() => navigation.navigate('EditImage')}>From app</MenuItem>
+        <MenuDivider />
+        <MenuItem onPress={() => this._pickImage('image')}>From Gallery</MenuItem>
+        </Menu>
 
         <TouchableOpacity
         style={styles.btn}
-        onPress={() => this._markByPosition()}>
+        onPress={() => this._markByPosition(this.topText.clear(),this.bottomText.clear())}>
         <Text style={styles.text} >Upload</Text>
         </TouchableOpacity>
 
@@ -133,19 +168,15 @@ import { TouchableOpacity, Image, View, Text, Platform, Dimensions, StyleSheet, 
         </ScrollView>
         )
     }
-
-    _markByPosition = (type) => {
-
+    setBottomText = () => {
+      console.log("--topfunction--bottom---",this.state.uritop)
       Marker.markText({
-        src: this.state.image,
-
-        text: this.state.topText , 
-        position:  'topCenter' , 
-        // text:this.state.bottomText,
-        // position: 'bottomCenter',
+        src: this.state.uritop, 
+        text:this.state.bottomText,
+        position: 'bottomCenter',
         color: '#ffffff',
         fontName: 'Arial-BoldItalicMT', 
-        fontSize: 80,
+        fontSize: 55,
         scale: 1,
         quality: 100,
         shadowStyle: {
@@ -156,36 +187,61 @@ import { TouchableOpacity, Image, View, Text, Platform, Dimensions, StyleSheet, 
         }
       })
       .then((path) => {
-        console.log('====================path================',path);
+        console.log('=======bottom=============path================',path);
         this.setState({
           show: true,
           uri: Platform.OS === 'android' ? 'file://' + path : path
         })
+
+       
       }).catch((err) => {
-        console.log('====================================')
         console.log(err)
-        console.log('====================================')
+
       })
+    };
 
-    }
+    _markByPosition = () => {
+     Marker.markText({
+      src: this.state.image,
+      text: this.state.topText, 
+      position:  'topCenter' , 
+      color: '#ffffff',
+      fontName: 'Arial-BoldItalicMT', 
+      fontSize: 55,
+      scale: 1,
+      quality: 100,
+      shadowStyle: {
+        dx: 10.5,
+        dy: 20.8,
+        radius: 20.9,
+        color:'#ffffff'
+      }
+    })
+     .then((path) => {
+      console.log('==========top==========path================',path);
+      this.setState({
+        show: true,
+        uritop: Platform.OS === 'android' ? 'file://' + path : path
+      })
+      this.setBottomText()
+    }).catch((err) => {
+      console.log(err)
 
-
-    _pickImage = (type) => {
-      let options = {
-        title: 'MEME Generator',
-        takePhotoButtonTitle: 'Camera',
-        chooseFromLibraryButtonTitle: 'Gallery',
-        cancelButtonTitle: 'cancel',
-        quality: 0.5,
-        mediaType: 'photo',
-        maxWidth: 2000,
-        noData: true,
-        maxHeight: 2000,
-        dateFormat: 'yyyy-MM-dd HH:mm:ss',
-      // storageOptions: {
-      //   skipBackup: true,
-      //   path: 'imagePickerCache'
-      // },
+    })
+  }
+  _pickImage = (type) => {
+    this.hideMenu()
+    let options = {
+      title: 'MEME Generator',
+      takePhotoButtonTitle: 'Camera',
+      chooseFromLibraryButtonTitle: 'Gallery',
+      cancelButtonTitle: 'cancel',
+      quality: 0.5,
+      mediaType: 'photo',
+      maxWidth: 2000,
+      noData: true,
+      maxHeight: 2000,
+      dateFormat: 'yyyy-MM-dd HH:mm:ss',
       allowsEditing: false
     }
     Picker.showImagePicker(options, (response) => {
@@ -218,7 +274,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 20
   },
-  op: {
+  view: {
     marginTop: 20,
     justifyContent: 'center',
     flexDirection: 'row',

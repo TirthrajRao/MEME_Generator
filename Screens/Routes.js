@@ -13,18 +13,13 @@ const MainNavigator = createStackNavigator({
 		screen: AddImage,
 		navigationOptions:  {
 				title: 'MEME Generator',
-			// header: null
+			
 		}	
 	},
 	EditImage:{
 		screen: EditImage,
 		navigationOptions: {
-			title: 'MEME Generator',
-			headerRight: (
-				<TouchableOpacity  onPress={() => this.props.navigation.navigate('AddImage')}>
-				<Icon name="library-books" color="#000" size={30} style={{marginRight:15}} />
-				</TouchableOpacity>
-				)
+			title: 'saved Image',
 		}
 	},
 
