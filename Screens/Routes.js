@@ -12,7 +12,6 @@ const MainNavigator = createStackNavigator({
 	AddImage: {
 		screen: AddImage,
 		navigationOptions:  {
-				// title: 'MEME Generator',
 				header: null
 			
 		}	

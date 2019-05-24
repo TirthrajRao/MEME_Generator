@@ -33,12 +33,6 @@ import { TouchableOpacity, Image, View, Text, Platform, Dimensions, StyleSheet, 
       }
     }
 
-    _switch = () => {
-      this.setState({
-        markImage: !this.state.markImage
-      })
-    }
-
     actualDownload = () => {
 
       let url = this.state.uri
@@ -52,7 +46,7 @@ import { TouchableOpacity, Image, View, Text, Platform, Dimensions, StyleSheet, 
         this.setState({resBase64:res})
         let base64 = this.state.resBase64
         RNFS.writeFile(file_path,base64,'base64')
-        this.saveData(url)
+       
         alert("Your file has been downloaded to Pictures folder!")
         this.setState({uri:''})
         .catch((error) => {
@@ -60,20 +54,6 @@ import { TouchableOpacity, Image, View, Text, Platform, Dimensions, StyleSheet, 
           alert(JSON.stringify(error));
         });
       });
-    }
-
-
-    saveData = async (url) => {
-      this.setState(prevState =>({
-        data: [...prevState.data,url]
-      })) 
-      console.log("---uri---",this.state.data)
-      try {
-        await AsyncStorage.setItem('url',JSON.stringify(this.state.data) );
-
-      } catch (e) {
-        console.log(e)
-      }
     }
 
     async downloadFile() {
@@ -180,7 +160,7 @@ import { TouchableOpacity, Image, View, Text, Platform, Dimensions, StyleSheet, 
         color: '#ffffff',
         backgroundColor: 'red',
         fontName: 'Arial-BoldItalicMT', 
-        fontSize: 80,
+        fontSize: 55,
         scale: 1,
         quality: 100,
         opacity:2.5,
@@ -211,7 +191,7 @@ import { TouchableOpacity, Image, View, Text, Platform, Dimensions, StyleSheet, 
         position:  'topCenter' ,        
         color: '#ffffff',
         fontName: 'Arial-BoldItalicMT', 
-        fontSize: 80,
+        fontSize: 55,
         scale: 1,
         quality: 100,
         opacity:2.5,
@@ -302,7 +282,8 @@ import { TouchableOpacity, Image, View, Text, Platform, Dimensions, StyleSheet, 
       color: 'black'
     },
     preview: {
-      width,
+      // width,
+      width:'100%',
       height: 300,
       flex: 1
     },
