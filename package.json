@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "add-text-to-image": "^1.0.1",
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "buffer": "^5.2.1",
     "native-base": "^2.12.1",
     "node-modules": "^1.0.1",
